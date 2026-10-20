@@ -125,15 +125,27 @@ struct CalculatorEngine {
             entry = Self.string(from: result)
             pendingOperator = nil
             phase = .result
-        case .typing:
-            guard let last = lastOperation else { return }
+        case .typing, .result:
+            // 兩種子情境（與 setOperator 的 .typing 分支對稱）：
+            // 1. 帶 pendingOperator：完成「按運算子後輸入第二運算元」的待算式
+            // 2. 無 pending：以目前顯示值為左運算元，重複上次運算（lastOperation）
             let rhs = displayValue
-            let result = apply(last.op, last.operand, rhs)
-            lastOperation = (last.op, rhs)
-            accumulator = result
-            entry = Self.string(from: result)
-            phase = .result
-        case .idle, .result:
+            if let pending = pendingOperator {
+                let result = apply(pending, accumulator, rhs)
+                lastOperation = (pending, rhs)
+                accumulator = result
+                entry = Self.string(from: result)
+                pendingOperator = nil
+                phase = .result
+            } else if let last = lastOperation {
+                let result = apply(last.op, rhs, last.operand)
+                accumulator = result
+                entry = Self.string(from: result)
+                phase = .result
+            } else {
+                return
+            }
+        case .idle:
             break
         }
     }
