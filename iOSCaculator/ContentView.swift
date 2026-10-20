@@ -7,8 +7,8 @@ struct ContentView: View {
     private enum Palette {
         static let digit = Color(red: 0.165, green: 0.165, blue: 0.176)
         static let utility = Color(red: 0.659, green: 0.659, blue: 0.667)
-        static let operatorFill = Color(red: 1.0, green: 0.624, blue: 0.039)
-        static let operatorText = Color(red: 1.0, green: 0.741, blue: 0.039)
+        static let operatorFill = Color(red: 0.878, green: 0.525, blue: 0.035)
+        static let operatorText = Color.white
     }
 
     var body: some View {
