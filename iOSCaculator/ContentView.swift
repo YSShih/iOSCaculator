@@ -4,11 +4,6 @@ import SwiftUI
 struct ContentView: View {
     @State private var viewModel = CalculatorViewModel()
 
-    private let columns = Array(
-        repeating: GridItem(.flexible(), spacing: 12),
-        count: 4
-    )
-
     private enum Palette {
         static let digit = Color(red: 0.165, green: 0.165, blue: 0.176)
         static let utility = Color(red: 0.659, green: 0.659, blue: 0.667)
@@ -28,44 +23,59 @@ struct ContentView: View {
                 .padding(.horizontal, 24)
                 .accessibilityLabel("顯示：\(viewModel.display)")
 
-            LazyVGrid(columns: columns, spacing: 12) {
-                key(viewModel.clearLabel, fill: Palette.utility, foreground: .black) {
-                    viewModel.press(.clear)
-                }
-                key("%", fill: Palette.utility, foreground: .black) {
-                    viewModel.press(.percent)
-                }
-                operatorKey("÷", .divide)
-
-                ForEach(7...9, id: \.self) { digit in
-                    key("\(digit)", fill: Palette.digit) {
-                        viewModel.press(.digit(digit))
+            // 用 Grid 而非 LazyVGrid：只有 Grid 支援 gridCellColumns，
+            // 「0」才能橫跨兩欄，排成真機的 4 欄 5 列。
+            Grid(horizontalSpacing: 12, verticalSpacing: 12) {
+                GridRow {
+                    key(viewModel.clearLabel, fill: Palette.utility, foreground: .black) {
+                        viewModel.press(.clear)
                     }
-                }
-                operatorKey("×", .multiply)
-
-                ForEach(4...6, id: \.self) { digit in
-                    key("\(digit)", fill: Palette.digit) {
-                        viewModel.press(.digit(digit))
+                    key("±", fill: Palette.utility, foreground: .black) {
+                        viewModel.press(.toggleSign)
                     }
-                }
-                operatorKey("−", .subtract)
-
-                ForEach(1...3, id: \.self) { digit in
-                    key("\(digit)", fill: Palette.digit) {
-                        viewModel.press(.digit(digit))
+                    key("%", fill: Palette.utility, foreground: .black) {
+                        viewModel.press(.percent)
                     }
+                    operatorKey("÷", .divide)
                 }
-                operatorKey("+", .add)
 
-                key("0", fill: Palette.digit, wide: true) {
-                    viewModel.press(.digit(0))
+                GridRow {
+                    ForEach(7...9, id: \.self) { digit in
+                        key("\(digit)", fill: Palette.digit) {
+                            viewModel.press(.digit(digit))
+                        }
+                    }
+                    operatorKey("×", .multiply)
                 }
-                key(".", fill: Palette.digit) {
-                    viewModel.press(.decimalPoint)
+
+                GridRow {
+                    ForEach(4...6, id: \.self) { digit in
+                        key("\(digit)", fill: Palette.digit) {
+                            viewModel.press(.digit(digit))
+                        }
+                    }
+                    operatorKey("−", .subtract)
                 }
-                key("=", fill: Palette.operatorFill, foreground: Palette.operatorText) {
-                    viewModel.press(.equals)
+
+                GridRow {
+                    ForEach(1...3, id: \.self) { digit in
+                        key("\(digit)", fill: Palette.digit) {
+                            viewModel.press(.digit(digit))
+                        }
+                    }
+                    operatorKey("+", .add)
+                }
+
+                GridRow {
+                    key("0", fill: Palette.digit, wide: true) {
+                        viewModel.press(.digit(0))
+                    }
+                    key(".", fill: Palette.digit) {
+                        viewModel.press(.decimalPoint)
+                    }
+                    key("=", fill: Palette.operatorFill, foreground: Palette.operatorText) {
+                        viewModel.press(.equals)
+                    }
                 }
             }
         }
